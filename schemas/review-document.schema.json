@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tiempo0206/evalmerge/schemas/review-document.schema.json",
+  "title": "EvalMerge review document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "document_type", "evaluation", "samples"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "document_type": { "const": "evalmerge.review" },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eval_id", "task", "model", "created", "status", "source"],
+      "properties": {
+        "eval_id": { "type": "string" },
+        "task": { "type": "string" },
+        "model": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["filename", "sha256"],
+          "properties": {
+            "filename": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        }
+      }
+    },
+    "samples": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/sample" }
+    }
+  },
+  "$defs": {
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sample_uuid",
+        "id",
+        "epoch",
+        "input",
+        "target",
+        "output",
+        "scores",
+        "reviews"
+      ],
+      "properties": {
+        "sample_uuid": { "type": ["string", "null"] },
+        "id": { "type": ["string", "integer", "null"] },
+        "epoch": { "type": "integer", "minimum": 1 },
+        "input": {},
+        "target": {},
+        "metadata": { "type": "object" },
+        "output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["model", "completion"],
+          "properties": {
+            "model": { "type": "string" },
+            "completion": { "type": "string" }
+          }
+        },
+        "scores": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "reviews": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/review" }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "comment", "updated_at"],
+      "properties": {
+        "label": { "enum": ["pass", "fail", "unsure"] },
+        "comment": { "type": "string" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
