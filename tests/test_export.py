@@ -75,6 +75,18 @@ def test_schema_remains_compatible_with_version_1_0(
     Draft202012Validator(schema).validate(document)
 
 
+def test_browser_demo_matches_review_schema() -> None:
+    """The zero-setup browser demo should obey the production data contract."""
+    schema = json.loads(
+        Path("schemas/review-document.schema.json").read_text(encoding="utf-8")
+    )
+    demo = json.loads(
+        Path("automerge-review/web/demo-review.json").read_text(encoding="utf-8")
+    )
+
+    Draft202012Validator(schema).validate(demo)
+
+
 def test_export_refuses_to_overwrite_without_force(
     eval_log_path: Path, tmp_path: Path
 ) -> None:

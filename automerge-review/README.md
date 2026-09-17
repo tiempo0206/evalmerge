@@ -16,6 +16,8 @@ Automerge CRDT. It demonstrates offline-first review without requiring a server.
 - `syncReviewDocuments` exchanges incremental peer-to-peer sync messages.
 - Sync state encoding and decoding supports process restarts and reconnection.
 - `saveReviewDocument` and `loadReviewDocument` persist complete CRDT history.
+- `saveReviewToStorage` and `loadReviewFromStorage` preserve that binary history
+  in browser storage instead of flattening the document to JSON.
 
 Independent reviewers use different map keys and merge without losing edits.
 Two devices that concurrently replace the same reviewer key produce a real CRDT
@@ -29,6 +31,26 @@ npm run check
 ```
 
 `check` runs Prettier verification, strict TypeScript checking, and Vitest.
+
+## Run the Review Studio
+
+```bash
+npm run dev
+```
+
+Open <http://127.0.0.1:5173>. Import an EvalMerge `*.review.json` document or
+select **Load demo** for a zero-setup walkthrough. Reviews are stored locally as
+an Automerge binary document and survive a page refresh.
+
+The interface calculates consensus as edits are recorded, surfaces unresolved
+same-key conflicts, and requires a resolver identity and reason before selecting
+a winning version. JSON export is disabled while a conflict is unresolved so a
+lossy snapshot cannot silently discard an alternative; binary CRDT export stays
+available for recovery and peer exchange.
+
+Production assets can be generated with `npm run build`. The app uses bundled
+code and system fonts, so reviewing does not require a network connection or a
+backend service.
 
 ## Run the offline demo
 

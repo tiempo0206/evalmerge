@@ -21,11 +21,13 @@ Repository: <https://github.com/tiempo0206/inspect_ai>
 9. Added a versioned JSON Schema and a SHA-256 link to the immutable source log.
 10. Upgraded the exporter to schema 1.1 with an empty per-sample conflict
     resolution map while retaining schema compatibility with version 1.0.
+11. Added a schema-validated browser fixture so the Review Studio demo and real
+    Inspect exports are checked against one shared data contract.
 
 ### Verification
 
 - Focused upstream test: passed.
-- EvalMerge Python tests: 6 passed.
+- EvalMerge Python tests: 7 passed.
 - Ruff lint and formatting: passed.
 - GitHub Actions Python job: passed.
 
@@ -38,6 +40,8 @@ Repository: <https://github.com/tiempo0206/inspect_ai>
   original log when deeper debugging is needed.
 - Keep conflict and consensus logic outside Inspect; the `.eval` file remains
   the immutable source of model-run evidence.
+- Reuse the production schema for demo fixtures so the UI cannot drift away
+  from the actual Inspect export format.
 
 ### Next tasks
 

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Local-first collaborative review for Inspect AI evaluations"
+    />
+    <title>EvalMerge Review Studio</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="#" aria-label="EvalMerge home">
+        <span class="brand-mark" aria-hidden="true">EM</span>
+        <span>
+          <strong>EvalMerge</strong>
+          <small>Review Studio</small>
+        </span>
+      </a>
+      <div class="header-actions">
+        <span class="local-badge"><span></span> Local-first</span>
+        <label class="button button-primary" for="file-input">
+          Import document
+        </label>
+        <input
+          id="file-input"
+          class="visually-hidden"
+          type="file"
+          accept=".json,.automerge,application/json,application/octet-stream"
+        />
+        <button id="export-json" class="button" type="button" disabled>
+          Export JSON
+        </button>
+        <button id="export-binary" class="button" type="button" disabled>
+          Export CRDT
+        </button>
+        <button id="reset-document" class="button button-quiet" type="button">
+          Reset
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="empty-state" class="empty-state">
+        <div class="eyebrow">Inspect AI × Automerge</div>
+        <h1>Review model evaluations without giving up offline work.</h1>
+        <p>
+          Import an EvalMerge review JSON or Automerge binary document. Review
+          samples, inspect conflicts, calculate consensus, and keep the complete
+          change history on this device.
+        </p>
+        <div class="empty-actions">
+          <label class="button button-primary button-large" for="file-input">
+            Choose a review document
+          </label>
+          <button id="load-demo" class="button button-large" type="button">
+            Load demo
+          </button>
+        </div>
+        <div class="feature-row" aria-label="Product features">
+          <span>Offline persistence</span>
+          <span>Conflict audit</span>
+          <span>Consensus reports</span>
+        </div>
+      </section>
+
+      <section id="workspace" class="workspace" hidden>
+        <section class="summary-bar" aria-label="Evaluation summary">
+          <div class="evaluation-identity">
+            <span class="eyebrow">Active evaluation</span>
+            <h1 id="evaluation-name">—</h1>
+            <p id="evaluation-meta">—</p>
+          </div>
+          <div class="metric-grid">
+            <div class="metric">
+              <strong id="metric-total">0</strong><span>Samples</span>
+            </div>
+            <div class="metric">
+              <strong id="metric-reviewed">0</strong><span>Reviewed</span>
+            </div>
+            <div class="metric metric-warn">
+              <strong id="metric-arbitration">0</strong><span>Arbitration</span>
+            </div>
+            <div class="metric">
+              <strong id="metric-agreement">—</strong><span>Agreement</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="review-layout">
+          <aside class="sample-sidebar">
+            <div class="sidebar-heading">
+              <div>
+                <span class="eyebrow">Queue</span>
+                <h2>Samples</h2>
+              </div>
+              <span id="visible-count" class="count-pill">0</span>
+            </div>
+            <label class="field compact-field">
+              <span>Search</span>
+              <input
+                id="sample-search"
+                type="search"
+                placeholder="ID or prompt"
+              />
+            </label>
+            <label class="field compact-field">
+              <span>Filter</span>
+              <select id="sample-filter">
+                <option value="all">All samples</option>
+                <option value="pending">Pending review</option>
+                <option value="arbitration">Needs arbitration</option>
+                <option value="pass">Pass</option>
+                <option value="fail">Fail</option>
+              </select>
+            </label>
+            <nav
+              id="sample-list"
+              class="sample-list"
+              aria-label="Evaluation samples"
+            ></nav>
+          </aside>
+
+          <article id="sample-detail" class="sample-detail">
+            <div class="detail-heading">
+              <div>
+                <span id="sample-key" class="eyebrow">Sample</span>
+                <h2 id="sample-title">—</h2>
+              </div>
+              <span id="sample-decision" class="decision-badge">—</span>
+            </div>
+
+            <div class="evidence-grid">
+              <section class="evidence-card evidence-wide">
+                <h3>Input</h3>
+                <pre id="sample-input"></pre>
+              </section>
+              <section class="evidence-card">
+                <h3>Target</h3>
+                <pre id="sample-target"></pre>
+              </section>
+              <section class="evidence-card">
+                <h3>Model completion</h3>
+                <pre id="sample-output"></pre>
+              </section>
+              <section class="evidence-card evidence-wide score-card">
+                <h3>Automated scores</h3>
+                <pre id="sample-scores"></pre>
+              </section>
+            </div>
+
+            <section class="review-section">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Human review</span>
+                  <h2>Record a judgment</h2>
+                </div>
+                <div id="vote-summary" class="vote-summary">No votes</div>
+              </div>
+
+              <form id="review-form" class="review-form">
+                <label class="field">
+                  <span>Reviewer ID</span>
+                  <input
+                    id="reviewer-id"
+                    name="reviewer"
+                    required
+                    placeholder="e.g. tianbo"
+                  />
+                </label>
+                <label class="field">
+                  <span>Label</span>
+                  <select id="review-label" name="label">
+                    <option value="pass">Pass</option>
+                    <option value="fail">Fail</option>
+                    <option value="unsure">Unsure</option>
+                  </select>
+                </label>
+                <label class="field field-comment">
+                  <span>Comment</span>
+                  <textarea
+                    id="review-comment"
+                    name="comment"
+                    required
+                    rows="3"
+                    placeholder="Explain the judgment so another reviewer can audit it."
+                  ></textarea>
+                </label>
+                <button class="button button-primary form-submit" type="submit">
+                  Save review
+                </button>
+              </form>
+
+              <div id="review-list" class="review-list"></div>
+            </section>
+
+            <section class="review-section audit-section">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Audit trail</span>
+                  <h2>Conflict resolutions</h2>
+                </div>
+              </div>
+              <div id="resolution-list" class="resolution-list"></div>
+            </section>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="status-message"
+      class="status-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+    <script>
+      function showStartupError(message) {
+        const status = document.getElementById("status-message");
+        if (!status) return;
+        status.textContent = `Application error: ${message}`;
+        status.dataset.tone = "error";
+        status.classList.add("visible");
+      }
+      window.addEventListener("error", (event) =>
+        showStartupError(event.message),
+      );
+      window.addEventListener("unhandledrejection", (event) =>
+        showStartupError(String(event.reason)),
+      );
+    </script>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

@@ -32,13 +32,20 @@ Repository: <https://github.com/tiempo0206/automerge>
     existing relationship without forgetting the remote state.
 15. Reworked the live demo to synchronize offline reviews, conflicts, and the
     final resolution entirely through sync messages rather than direct merge.
+16. Added browser-safe base64 encoding around Automerge's binary save/load APIs
+    and tests proving complete document history survives local storage.
+17. Built the Review Studio integration for live edits, consensus, conflict
+    inspection, auditable resolution, JSON snapshots, and binary CRDT backups.
+18. Configured Vite's WASM pipeline explicitly and removed the obsolete
+    top-level-await workaround so development and production share one stable
+    initialization path.
 
 ### Verification
 
 - Rust formatting: passed.
 - Rust core tests: 187 passed, 0 failed, 1 ignored.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 15 passed across core, consensus, and sync suites.
+- Vitest: 17 passed across core, consensus, sync, and browser-storage suites.
 - Live Alice/Bob merge: both reviewer entries preserved.
 - Merged output: valid against review-document schema 1.0.
 - GitHub Actions Automerge job: passed on Node 24.
@@ -48,6 +55,9 @@ Repository: <https://github.com/tiempo0206/automerge>
   sessions (compressed byte count varies slightly with generated actor IDs).
 - A second unchanged sync sends zero messages and zero bytes.
 - Serialized peer state resumed successfully after a simulated restart.
+- Binary browser-storage round trip retained a real review and its history.
+- Browser refresh restored the review; consensus remained `pass` at 100%.
+- Production WASM build passed and `npm audit` reported 0 vulnerabilities.
 
 ### Decisions and lessons
 
@@ -57,6 +67,8 @@ Repository: <https://github.com/tiempo0206/automerge>
 - Clone the shared base before offline editing so each peer receives a distinct
   actor ID and preserves causal history.
 - Compare the Inspect evaluation ID and source SHA-256 before merging documents.
+- Treat binary Automerge state as the durable local form and disable lossy JSON
+  export until every concurrent same-key value has been resolved.
 
 ### Next tasks
 

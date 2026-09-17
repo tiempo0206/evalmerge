@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.1",
+  "document_type": "evalmerge.review",
+  "evaluation": {
+    "eval_id": "evalmerge-browser-demo",
+    "task": "hello_eval",
+    "model": "mockllm/model",
+    "created": "2026-09-17T02:32:07Z",
+    "status": "success",
+    "source": {
+      "filename": "hello-eval-demo.eval",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "samples": {
+    "demo-greeting": {
+      "sample_uuid": "demo-greeting",
+      "id": "greeting",
+      "epoch": 1,
+      "input": "Respond to this greeting: Hello, EvalMerge!",
+      "target": "Default output from mockllm/model",
+      "metadata": {},
+      "output": {
+        "model": "mockllm",
+        "completion": "Default output from mockllm/model"
+      },
+      "scores": {
+        "exact": {
+          "value": "C",
+          "answer": "Default output from mockllm/model"
+        }
+      },
+      "reviews": {},
+      "resolutions": {}
+    },
+    "demo-status": {
+      "sample_uuid": "demo-status",
+      "id": "status",
+      "epoch": 1,
+      "input": "Report whether the offline evaluation pipeline is ready.",
+      "target": "Default output from mockllm/model",
+      "metadata": {},
+      "output": {
+        "model": "mockllm",
+        "completion": "Default output from mockllm/model"
+      },
+      "scores": {
+        "exact": {
+          "value": "C",
+          "answer": "Default output from mockllm/model"
+        }
+      },
+      "reviews": {},
+      "resolutions": {}
+    }
+  }
+}
