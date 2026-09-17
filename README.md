@@ -1,5 +1,7 @@
 # EvalMerge
 
+[![test](https://github.com/tiempo0206/evalmerge/actions/workflows/test.yml/badge.svg)](https://github.com/tiempo0206/evalmerge/actions/workflows/test.yml)
+
 EvalMerge is an experimental local-first collaborative review workflow for
 [Inspect AI](https://inspect.aisi.org.uk/) evaluation logs. Its review state
 uses [Automerge](https://automerge.org/) so multiple reviewers can work offline,
@@ -58,6 +60,32 @@ and empty review and resolution maps for each sample. Its format is explained in
 [`docs/review-document.md`](docs/review-document.md) and validated by
 [`schemas/review-document.schema.json`](schemas/review-document.schema.json).
 
+## ContractBench reliability evaluation
+
+Run the 10-case structured-output benchmark without API credentials:
+
+```bash
+evalmerge benchmark \
+  --profile brittle \
+  --summary-output benchmarks/results/contract-brittle.json \
+  --force
+```
+
+The command produces a real Inspect `.eval` log, a Review Studio JSON document,
+and an optional stable summary. Its custom scorer distinguishes invalid JSON,
+JSON Schema violations, and schema-valid semantic errors. The committed
+controls score 10/10 for the conformant profile and 6/10 for the deliberately
+brittle profile, including all three failure classes.
+
+Use the same public Inspect task with a configured model:
+
+```bash
+inspect eval examples/contract_reliability.py --model PROVIDER/MODEL
+```
+
+See [`docs/benchmarks.md`](docs/benchmarks.md) for the case design, interpretation,
+and raw results.
+
 ## Local Review Studio
 
 Start the browser interface from the TypeScript workspace:
@@ -104,12 +132,26 @@ prints sync traffic, the consensus decision, and pending sample count. Consensus
 rules are documented in [`docs/consensus.md`](docs/consensus.md), and the sync
 protocol is documented in [`docs/sync-protocol.md`](docs/sync-protocol.md).
 
+Measure the sync protocol at 10, 100, and 1000 samples:
+
+```bash
+npm run benchmark:sync
+```
+
+After six shared changes, one new review used 482–492 bytes and reduced transfer
+by 84.18%–99.58% relative to a complete Automerge snapshot. The report also
+retains the first-review case where Automerge's v2 full-document threshold makes
+incremental sync slightly larger, rather than hiding that trade-off.
+
 ## Project journals
 
 Daily progress, verification evidence, decisions, and next tasks are maintained
 separately for [Inspect AI](docs/project-logs/inspect-ai.md),
 [Automerge](docs/project-logs/automerge.md), and
 [EvalMerge](docs/project-logs/evalmerge.md).
+
+Resume-ready Chinese and English project descriptions, evidence links, and
+claim boundaries are collected in [`docs/resume.md`](docs/resume.md).
 
 ## Current milestone
 
@@ -125,5 +167,7 @@ separately for [Inspect AI](docs/project-logs/inspect-ai.md),
 - [x] Compute reviewer consensus and arbitration queues
 - [x] Exchange and resume incremental Automerge sync messages
 - [x] Build and browser-test a local review interface
-- [ ] Replace the mock task with a meaningful reliability benchmark
-- [ ] Benchmark incremental sync on larger evaluation logs
+- [x] Add a versioned structured-output reliability benchmark and custom scorer
+- [x] Benchmark first-review and steady-state sync at 10–1000 samples
+- [ ] Evaluate ContractBench against at least two production models
+- [ ] Add authenticated peer transport around Automerge sync messages

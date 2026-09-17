@@ -68,6 +68,29 @@ and writes `YOUR_LOG.merged.json`.
 It also reports the number and total bytes of sync messages so protocol behavior
 is observable rather than hidden behind the final state.
 
+## Benchmark sync wire size
+
+```bash
+npm run benchmark:sync
+```
+
+The benchmark uses deterministic 10, 100, and 1000-sample review documents and
+compares complete Automerge snapshots with sync traffic for the same review
+operation. It reports both the first edit after importing JSON and a steady-state
+edit after six shared changes. This distinction captures Automerge v2's
+full-document threshold instead of overstating early-session savings.
+
+Write a reproducible JSON artifact with:
+
+```bash
+npm run benchmark:sync -- \
+  --output ../benchmarks/results/automerge-sync-wire-size.json \
+  --force
+```
+
+The methodology and current measurements are documented in
+[`../docs/benchmarks.md`](../docs/benchmarks.md).
+
 ## Consensus policy
 
 Unresolved same-key conflicts are excluded from the vote. A sample needs

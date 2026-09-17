@@ -1,0 +1,185 @@
+{
+  "benchmark": "evalmerge.contract_reliability",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "deployment-gate",
+      "category": "boolean_and_integer_types",
+      "prompt": "A deployment has exactly 2 blocking issues. Return only JSON with can_deploy set to false and blocking_issues set to 2.",
+      "expected": {"can_deploy": false, "blocking_issues": 2},
+      "schema": {
+        "type": "object",
+        "required": ["can_deploy", "blocking_issues"],
+        "additionalProperties": false,
+        "properties": {
+          "can_deploy": {"type": "boolean"},
+          "blocking_issues": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    {
+      "id": "severity-triage",
+      "category": "enum_selection",
+      "prompt": "A production outage affects every customer. Return only JSON with severity set to high and escalate set to true.",
+      "expected": {"severity": "high", "escalate": true},
+      "schema": {
+        "type": "object",
+        "required": ["severity", "escalate"],
+        "additionalProperties": false,
+        "properties": {
+          "severity": {"type": "string", "enum": ["low", "medium", "high"]},
+          "escalate": {"type": "boolean"}
+        }
+      }
+    },
+    {
+      "id": "nested-incident",
+      "category": "nested_object",
+      "prompt": "Return only JSON describing open incident INC-204 owned by sre under a top-level incident object.",
+      "expected": {"incident": {"id": "INC-204", "owner": "sre", "open": true}},
+      "schema": {
+        "type": "object",
+        "required": ["incident"],
+        "additionalProperties": false,
+        "properties": {
+          "incident": {
+            "type": "object",
+            "required": ["id", "owner", "open"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"const": "INC-204"},
+              "owner": {"type": "string"},
+              "open": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ordered-remediation",
+      "category": "ordered_array",
+      "prompt": "Return only JSON containing steps in this exact order: isolate, patch, verify.",
+      "expected": {"steps": ["isolate", "patch", "verify"]},
+      "schema": {
+        "type": "object",
+        "required": ["steps"],
+        "additionalProperties": false,
+        "properties": {
+          "steps": {
+            "type": "array",
+            "prefixItems": [
+              {"const": "isolate"},
+              {"const": "patch"},
+              {"const": "verify"}
+            ],
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "nullable-ticket",
+      "category": "nullable_value",
+      "prompt": "No support ticket was found. Return only JSON with ticket_id set to null and status set to not_found.",
+      "expected": {"ticket_id": null, "status": "not_found"},
+      "schema": {
+        "type": "object",
+        "required": ["ticket_id", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "ticket_id": {"type": ["string", "null"]},
+          "status": {"const": "not_found"}
+        }
+      }
+    },
+    {
+      "id": "unicode-preservation",
+      "category": "unicode_text",
+      "prompt": "Return only JSON preserving the city name München and language code de.",
+      "expected": {"city": "München", "language": "de"},
+      "schema": {
+        "type": "object",
+        "required": ["city", "language"],
+        "additionalProperties": false,
+        "properties": {
+          "city": {"const": "München"},
+          "language": {"const": "de"}
+        }
+      }
+    },
+    {
+      "id": "rate-limit-delay",
+      "category": "numeric_type",
+      "prompt": "The client is rate limited for 30 seconds. Return only JSON with retry_after_seconds as the integer 30 and rate_limited as true.",
+      "expected": {"retry_after_seconds": 30, "rate_limited": true},
+      "schema": {
+        "type": "object",
+        "required": ["retry_after_seconds", "rate_limited"],
+        "additionalProperties": false,
+        "properties": {
+          "retry_after_seconds": {"type": "integer", "minimum": 0, "maximum": 3600},
+          "rate_limited": {"type": "boolean"}
+        }
+      }
+    },
+    {
+      "id": "minimal-safety-result",
+      "category": "additional_properties",
+      "prompt": "The content is safe. Return only the JSON object with result set to safe and no other keys.",
+      "expected": {"result": "safe"},
+      "schema": {
+        "type": "object",
+        "required": ["result"],
+        "additionalProperties": false,
+        "properties": {"result": {"enum": ["safe", "unsafe"]}}
+      }
+    },
+    {
+      "id": "service-health-map",
+      "category": "nested_mapping",
+      "prompt": "The api service is healthy and the worker service is degraded. Return only JSON under a services object.",
+      "expected": {"services": {"api": "healthy", "worker": "degraded"}},
+      "schema": {
+        "type": "object",
+        "required": ["services"],
+        "additionalProperties": false,
+        "properties": {
+          "services": {
+            "type": "object",
+            "required": ["api", "worker"],
+            "additionalProperties": false,
+            "properties": {
+              "api": {"enum": ["healthy", "degraded", "down"]},
+              "worker": {"enum": ["healthy", "degraded", "down"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "review-summary",
+      "category": "mixed_array_and_count",
+      "prompt": "There are 3 review labels: pass, fail, unsure. Return only JSON with count 3 and labels in that order.",
+      "expected": {"count": 3, "labels": ["pass", "fail", "unsure"]},
+      "schema": {
+        "type": "object",
+        "required": ["count", "labels"],
+        "additionalProperties": false,
+        "properties": {
+          "count": {"const": 3},
+          "labels": {
+            "type": "array",
+            "prefixItems": [
+              {"const": "pass"},
+              {"const": "fail"},
+              {"const": "unsure"}
+            ],
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
+      }
+    }
+  ]
+}

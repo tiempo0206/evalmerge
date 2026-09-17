@@ -39,13 +39,21 @@ Repository: <https://github.com/tiempo0206/automerge>
 18. Configured Vite's WASM pipeline explicitly and removed the obsolete
     top-level-await workaround so development and production share one stable
     initialization path.
+19. Added deterministic actor IDs for repeatable systems experiments without
+    changing the default random-actor behavior used by the application.
+20. Built a wire-size benchmark for 10, 100, and 1000-sample review documents.
+21. Investigated an initially negative result and traced it to Automerge v2's
+    full-document threshold when missing changes exceed one third of history.
+22. Extended the experiment to report both first-review and steady-state costs,
+    preserving the early-session trade-off alongside later bandwidth savings.
 
 ### Verification
 
 - Rust formatting: passed.
 - Rust core tests: 187 passed, 0 failed, 1 ignored.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 17 passed across core, consensus, sync, and browser-storage suites.
+- Vitest: 21 passed across core, consensus, sync, browser-storage, and benchmark
+  suites.
 - Live Alice/Bob merge: both reviewer entries preserved.
 - Merged output: valid against review-document schema 1.0.
 - GitHub Actions Automerge job: passed on Node 24.
@@ -58,6 +66,10 @@ Repository: <https://github.com/tiempo0206/automerge>
 - Binary browser-storage round trip retained a real review and its history.
 - Browser refresh restored the review; consensus remained `pass` at 100%.
 - Production WASM build passed and `npm audit` reported 0 vulnerabilities.
+- First review after import: sync traffic was 0.14%–6.28% larger than a full
+  snapshot because the v2 threshold intentionally selected full-document sync.
+- After six shared changes: one new review used 482–492 bytes, reducing transfer
+  by 84.18% at 10 samples, 96.26% at 100, and 99.58% at 1000.
 
 ### Decisions and lessons
 
@@ -69,10 +81,12 @@ Repository: <https://github.com/tiempo0206/automerge>
 - Compare the Inspect evaluation ID and source SHA-256 before merging documents.
 - Treat binary Automerge state as the durable local form and disable lossy JSON
   export until every concurrent same-key value has been resolved.
+- Measure CRDT behavior by history shape as well as document size; a single huge
+  import change behaves differently from an established collaborative session.
 
 ### Next tasks
 
 - Add policy tests for larger reviewer panels and configurable quorum.
-- Benchmark incremental sync against full-document transfer on larger logs.
 - Add authenticated transport around the binary sync messages.
+- Test long-running sessions with compaction and multiple concurrent peers.
 - Select a non-duplicated upstream issue after the existing ESLint migration lands.

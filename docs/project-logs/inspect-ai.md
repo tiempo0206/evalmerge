@@ -23,11 +23,18 @@ Repository: <https://github.com/tiempo0206/inspect_ai>
     resolution map while retaining schema compatibility with version 1.0.
 11. Added a schema-validated browser fixture so the Review Studio demo and real
     Inspect exports are checked against one shared data contract.
+12. Created ContractBench 1.0: 10 versioned structured-output cases covering
+    types, enums, nesting, ordering, nullability, Unicode, and strict key sets.
+13. Implemented a custom scorer that separates invalid JSON, Schema violations,
+    and schema-valid semantic mismatches with auditable explanations.
+14. Added controlled conformant and brittle model profiles to test the complete
+    evaluation pipeline without credentials, while keeping the task runnable
+    against any configured Inspect model.
 
 ### Verification
 
 - Focused upstream test: passed.
-- EvalMerge Python tests: 7 passed.
+- EvalMerge Python tests: 11 passed.
 - Ruff lint and formatting: passed.
 - GitHub Actions Python job: passed.
 
@@ -42,10 +49,11 @@ Repository: <https://github.com/tiempo0206/inspect_ai>
   the immutable source of model-run evidence.
 - Reuse the production schema for demo fixtures so the UI cannot drift away
   from the actual Inspect export format.
+- Treat controlled mock profiles as scorer calibration, not model-quality
+  evidence; label them explicitly in every result and document.
 
 ### Next tasks
 
-- Replace the mock questions with a small, meaningful safety or reliability
-  benchmark.
-- Add at least one scorer that provides explanatory feedback.
+- Run ContractBench against at least two production models with fixed settings.
+- Expand the benchmark only after reviewing real-model failure clusters.
 - Identify a focused upstream issue suitable for a small Inspect AI pull request.

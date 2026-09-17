@@ -1,0 +1,9 @@
+{
+  "accuracy": 1.0,
+  "benchmark": "evalmerge.contract_reliability",
+  "failures": {},
+  "passed": 10,
+  "profile": "conformant",
+  "total": 10,
+  "version": "1.0"
+}

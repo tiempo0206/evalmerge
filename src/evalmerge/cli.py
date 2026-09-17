@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from evalmerge.benchmark import run_controlled_benchmark, write_benchmark_summary
 from evalmerge.export import export_eval_log
 
 
@@ -30,6 +32,38 @@ def _parser() -> argparse.ArgumentParser:
     export_parser.add_argument(
         "--force", action="store_true", help="replace an existing output file"
     )
+
+    benchmark_parser = subparsers.add_parser(
+        "benchmark",
+        help="run a credential-free structured-output reliability baseline",
+    )
+    benchmark_parser.add_argument(
+        "--profile",
+        choices=("conformant", "brittle"),
+        default="brittle",
+        help="controlled response profile (default: brittle)",
+    )
+    benchmark_parser.add_argument(
+        "--log-dir",
+        type=Path,
+        default=Path("logs"),
+        help="Inspect log directory (default: logs)",
+    )
+    benchmark_parser.add_argument(
+        "--summary-output",
+        type=Path,
+        help="optional path for a stable JSON summary",
+    )
+    benchmark_parser.add_argument(
+        "--no-export",
+        action="store_true",
+        help="do not create a Review Studio JSON document",
+    )
+    benchmark_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="replace existing summary or review output files",
+    )
     return parser
 
 
@@ -45,6 +79,30 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"evalmerge: error: {error}", file=sys.stderr)
             return 1
         print(f"Exported review document: {output_path}")
+        return 0
+
+    if args.command == "benchmark":
+        try:
+            log_path, summary = run_controlled_benchmark(args.profile, args.log_dir)
+            review_path = None
+            if not args.no_export:
+                review_path = export_eval_log(log_path, force=args.force)
+            if args.summary_output:
+                write_benchmark_summary(
+                    summary,
+                    args.summary_output,
+                    force=args.force,
+                )
+        except (OSError, RuntimeError, ValueError) as error:
+            print(f"evalmerge: error: {error}", file=sys.stderr)
+            return 1
+
+        print(f"Inspect log: {log_path}")
+        if review_path is not None:
+            print(f"Review document: {review_path}")
+        if args.summary_output:
+            print(f"Benchmark summary: {args.summary_output}")
+        print(json.dumps(summary.to_dict(), sort_keys=True))
         return 0
 
     parser.error(f"unknown command: {args.command}")

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "evalmerge"
-version = "0.6.0"
+version = "0.7.0"
 description = "Local-first collaborative review tools for Inspect AI evaluations"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,11 +12,11 @@ license = { text = "MIT" }
 authors = [{ name = "tiempo0206" }]
 dependencies = [
   "inspect-ai>=0.3.264",
+  "jsonschema>=4.23",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "jsonschema>=4.23",
   "pytest>=8.0",
   "ruff>=0.9",
 ]
@@ -26,6 +26,9 @@ evalmerge = "evalmerge.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+evalmerge = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

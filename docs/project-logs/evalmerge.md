@@ -36,14 +36,28 @@ Repository: <https://github.com/tiempo0206/evalmerge>
     builds, and a real-browser acceptance walkthrough.
 19. Removed remote font dependencies, documented the local-first privacy
     boundary, and upgraded EvalMerge to 0.6.0 and the review core to 0.4.0.
+20. Designed ContractBench 1.0 with 10 structured-output reliability cases and
+    a custom Inspect scorer for JSON syntax, Schema, and semantic correctness.
+21. Added `evalmerge benchmark` with conformant and brittle controlled profiles,
+    automatic Review Studio export, stable summaries, and overwrite protection.
+22. Ran both baselines: conformant passed 10/10; brittle passed 6/10 with one
+    invalid JSON, two Schema violations, and one semantic mismatch.
+23. Imported the 10-sample brittle result into Review Studio and verified the
+    scorer explanation and failure metadata in the browser.
+24. Added a deterministic Automerge wire-size benchmark at 10, 100, and 1000
+    samples, including both first-review and steady-state measurements.
+25. Published raw benchmark artifacts and methodology, then upgraded EvalMerge
+    to 0.7.0 and the Automerge review core to 0.5.0.
+26. Added evidence-linked Chinese and English resume bullets, interview talking
+    points, and explicit claim boundaries for controlled benchmark results.
 
 ### Verification
 
-- Python tests: 7 passed.
+- Python tests: 11 passed.
 - Python lint and formatting: passed.
 - Real Inspect export: 2 samples, schema version 1.1.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 17 passed across four test files.
+- Vitest: 21 passed across five test files.
 - Live Alice/Bob merge: passed; both reviews survived.
 - Review documents for schema versions 1.0 and 1.1: validation passed.
 - GitHub Actions: Python and Automerge jobs both passed.
@@ -54,6 +68,10 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 - Browser acceptance: demo loaded 2 samples; review changed the summary to 1
   reviewed with 100% agreement; pass filtering and refresh persistence passed.
 - Browser console after the configuration fix: no new application errors.
+- ContractBench export: 10 schema-valid review samples with scorer explanations.
+- ContractBench controls: 100% conformant and 60% deliberately brittle.
+- Steady-state sync: 482–492 bytes at 10–1000 samples, saving 84.18%–99.58%
+  relative to full binary snapshots.
 
 ### Decisions and lessons
 
@@ -65,10 +83,13 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 - Persist the binary CRDT in the browser; JSON is an interchange view and must
   not silently flatten unresolved alternatives.
 - Keep all page assets local so offline review has no hidden network dependency.
+- Separate scorer controls from production-model claims: controlled profiles
+  validate the instrument, while real model comparisons remain future evidence.
+- Report the first-review full-document threshold alongside steady-state gains.
 
 ### Next tasks
 
-- Replace the deterministic mock task with a meaningful reliability benchmark.
 - Add configurable quorum and consensus-policy presets.
-- Benchmark sync performance with larger Inspect logs.
 - Define the authenticated transport boundary for remote peers.
+- Evaluate ContractBench against at least two real models when credentials and
+  a documented evaluation budget are available.

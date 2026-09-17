@@ -1,0 +1,52 @@
+{
+  "benchmark": "evalmerge.automerge_sync_wire_size",
+  "version": "1.0",
+  "operation": "first and steady-state human reviews after peer bootstrap",
+  "results": [
+    {
+      "sample_count": 10,
+      "document_bytes_before_edit": 2277,
+      "initial_sync_bytes": 4825,
+      "first_review_snapshot_bytes": 2470,
+      "first_review_sync_bytes": 2625,
+      "first_review_reduction_percent": -6.28,
+      "history_changes_before_steady_edit": 6,
+      "steady_state_snapshot_bytes": 3046,
+      "incremental_sync_bytes": 482,
+      "sync_messages": 2,
+      "sync_rounds": 3,
+      "reduction_percent": 84.18,
+      "duration_ms": 0.91
+    },
+    {
+      "sample_count": 100,
+      "document_bytes_before_edit": 12332,
+      "initial_sync_bytes": 24935,
+      "first_review_snapshot_bytes": 12563,
+      "first_review_sync_bytes": 12718,
+      "first_review_reduction_percent": -1.23,
+      "history_changes_before_steady_edit": 6,
+      "steady_state_snapshot_bytes": 13162,
+      "incremental_sync_bytes": 492,
+      "sync_messages": 2,
+      "sync_rounds": 3,
+      "reduction_percent": 96.26,
+      "duration_ms": 0.442
+    },
+    {
+      "sample_count": 1000,
+      "document_bytes_before_edit": 115192,
+      "initial_sync_bytes": 230657,
+      "first_review_snapshot_bytes": 115486,
+      "first_review_sync_bytes": 115642,
+      "first_review_reduction_percent": -0.14,
+      "history_changes_before_steady_edit": 6,
+      "steady_state_snapshot_bytes": 116167,
+      "incremental_sync_bytes": 492,
+      "sync_messages": 2,
+      "sync_rounds": 3,
+      "reduction_percent": 99.58,
+      "duration_ms": 0.826
+    }
+  ]
+}

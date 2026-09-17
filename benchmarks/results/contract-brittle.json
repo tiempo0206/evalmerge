@@ -1,0 +1,13 @@
+{
+  "accuracy": 0.6,
+  "benchmark": "evalmerge.contract_reliability",
+  "failures": {
+    "invalid_json": 1,
+    "schema_violation": 2,
+    "semantic_mismatch": 1
+  },
+  "passed": 6,
+  "profile": "brittle",
+  "total": 10,
+  "version": "1.0"
+}

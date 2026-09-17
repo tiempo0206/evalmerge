@@ -24,6 +24,7 @@ function requireSample(document: CollaborativeReview, sampleKey: string): void {
 
 export function createReviewDocument(
   document: ReviewDocument,
+  actorId?: string,
 ): CollaborativeReview {
   assertReviewDocument(document);
   const migrated = structuredClone(document);
@@ -31,13 +32,14 @@ export function createReviewDocument(
   for (const sample of Object.values(migrated.samples)) {
     sample.resolutions ??= {};
   }
-  return Automerge.from<ReviewDocument>(migrated);
+  return Automerge.from<ReviewDocument>(migrated, actorId);
 }
 
 export function forkReviewDocument(
   document: CollaborativeReview,
+  actorId?: string,
 ): CollaborativeReview {
-  return Automerge.clone(document);
+  return Automerge.clone(document, actorId);
 }
 
 export function addReview(
