@@ -56,6 +56,32 @@ and an empty review map for each sample. Its format is explained in
 [`docs/review-document.md`](docs/review-document.md) and validated by
 [`schemas/review-document.schema.json`](schemas/review-document.schema.json).
 
+## Offline Automerge demo
+
+Install the TypeScript workspace:
+
+```bash
+cd automerge-review
+npm install
+```
+
+From that directory, give Alice and Bob separate offline copies of an exported
+review document and merge their independent reviews:
+
+```bash
+npm run demo -- ../logs/YOUR_LOG.review.json
+```
+
+The command writes `YOUR_LOG.merged.json`. The core implementation also saves
+and loads Automerge's binary format so complete CRDT history can be persisted.
+
+## Project journals
+
+Daily progress, verification evidence, decisions, and next tasks are maintained
+separately for [Inspect AI](docs/project-logs/inspect-ai.md),
+[Automerge](docs/project-logs/automerge.md), and
+[EvalMerge](docs/project-logs/evalmerge.md).
+
 ## Current milestone
 
 - [x] Reproducible two-sample Inspect task
@@ -63,5 +89,7 @@ and an empty review map for each sample. Its format is explained in
 - [x] Automated task and end-to-end evaluation tests
 - [x] Export selected fields from an `.eval` log
 - [x] Version and validate the review-document format
-- [ ] Represent reviewer annotations in an Automerge document
-- [ ] Merge offline annotations and compute consensus
+- [x] Represent reviewer annotations in an Automerge document
+- [x] Merge independent offline annotations
+- [x] Detect concurrent same-key review conflicts
+- [ ] Resolve conflicts and compute reviewer consensus
