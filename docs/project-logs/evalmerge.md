@@ -28,6 +28,7 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 - Vitest: 4 passed.
 - Live Alice/Bob merge: passed; both reviews survived.
 - Merged JSON validation against schema 1.0: passed.
+- GitHub Actions: Python and Automerge jobs both passed.
 
 ### Decisions and lessons
 

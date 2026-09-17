@@ -29,6 +29,7 @@ Repository: <https://github.com/tiempo0206/automerge>
 - Vitest: 4 passed.
 - Live Alice/Bob merge: both reviewer entries preserved.
 - Merged output: valid against review-document schema 1.0.
+- GitHub Actions Automerge job: passed on Node 24.
 
 ### Decisions and lessons
 
