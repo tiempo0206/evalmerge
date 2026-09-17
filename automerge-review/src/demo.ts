@@ -6,11 +6,11 @@ import {
   createReviewDocument,
   forkReviewDocument,
   getReviewConflicts,
-  mergeReviewDocuments,
   resolveReviewConflict,
   toPlainReviewDocument,
 } from "./core.ts";
 import { buildConsensusReport } from "./consensus.ts";
+import { syncReviewDocuments } from "./sync.ts";
 import type { ReviewDocument } from "./types.ts";
 
 async function main(): Promise<void> {
@@ -34,30 +34,32 @@ async function main(): Promise<void> {
   }
 
   const base = createReviewDocument(source);
-  const alice = addReview(forkReviewDocument(base), sampleKey, "alice", {
+  const handshake = syncReviewDocuments(
+    forkReviewDocument(base),
+    forkReviewDocument(base),
+  );
+  const alice = addReview(handshake.left, sampleKey, "alice", {
     label: "pass",
     comment: "The completion matches the expected answer.",
     updated_at: new Date().toISOString(),
   });
-  const bob = addReview(forkReviewDocument(base), sampleKey, "bob", {
+  const bob = addReview(handshake.right, sampleKey, "bob", {
     label: "unsure",
     comment: "The mock answer is correct but not semantically informative.",
     updated_at: new Date().toISOString(),
   });
-  const independentlyMerged = mergeReviewDocuments(alice, bob);
+  const reviewSync = syncReviewDocuments(alice, bob, {
+    leftState: handshake.leftState,
+    rightState: handshake.rightState,
+  });
 
-  const firstDevice = addReview(
-    forkReviewDocument(independentlyMerged),
-    sampleKey,
-    "shared-reviewer",
-    {
-      label: "pass",
-      comment: "Reviewed against the published rubric.",
-      updated_at: new Date().toISOString(),
-    },
-  );
+  const firstDevice = addReview(reviewSync.left, sampleKey, "shared-reviewer", {
+    label: "pass",
+    comment: "Reviewed against the published rubric.",
+    updated_at: new Date().toISOString(),
+  });
   const secondDevice = addReview(
-    forkReviewDocument(independentlyMerged),
+    reviewSync.right,
     sampleKey,
     "shared-reviewer",
     {
@@ -66,7 +68,11 @@ async function main(): Promise<void> {
       updated_at: new Date().toISOString(),
     },
   );
-  const conflicted = mergeReviewDocuments(firstDevice, secondDevice);
+  const conflictSync = syncReviewDocuments(firstDevice, secondDevice, {
+    leftState: reviewSync.leftState,
+    rightState: reviewSync.rightState,
+  });
+  const conflicted = conflictSync.left;
   const conflicts = getReviewConflicts(
     conflicted,
     sampleKey,
@@ -87,9 +93,22 @@ async function main(): Promise<void> {
       reason: "The selected review follows the published rubric.",
     },
   );
-  const result = toPlainReviewDocument(resolved);
-  const report = buildConsensusReport(resolved);
+  const resolutionSync = syncReviewDocuments(resolved, conflictSync.right, {
+    leftState: conflictSync.leftState,
+    rightState: conflictSync.rightState,
+  });
+  const result = toPlainReviewDocument(resolutionSync.left);
+  const report = buildConsensusReport(resolutionSync.left);
   const sampleConsensus = report.samples[sampleKey]!;
+  const sessions = [handshake, reviewSync, conflictSync, resolutionSync];
+  const totalMessages = sessions.reduce(
+    (total, session) => total + session.stats.messages,
+    0,
+  );
+  const totalBytes = sessions.reduce(
+    (total, session) => total + session.stats.bytes,
+    0,
+  );
 
   await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
   console.log(`Merged sample: ${sampleKey}`);
@@ -102,6 +121,7 @@ async function main(): Promise<void> {
   console.log(
     `Consensus: ${sampleConsensus.decision} (${sampleConsensus.votes.pass}/${sampleConsensus.counted_reviews} pass)`,
   );
+  console.log(`Sync traffic: ${totalMessages} messages, ${totalBytes} bytes`);
   console.log(`Pending samples: ${report.pending_review.length}`);
   console.log(`Output: ${outputPath}`);
 }

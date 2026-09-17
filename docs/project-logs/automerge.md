@@ -26,18 +26,28 @@ Repository: <https://github.com/tiempo0206/automerge>
     review tracking, and an arbitration queue.
 12. Extended the live demo to create a real conflict, resolve it, and compute a
     two-of-three `pass` decision.
+13. Implemented the stateful Automerge sync protocol with bounded rounds,
+    directional message counts, and byte-level traffic metrics.
+14. Added serialized sync-state persistence so a peer can restart and resume an
+    existing relationship without forgetting the remote state.
+15. Reworked the live demo to synchronize offline reviews, conflicts, and the
+    final resolution entirely through sync messages rather than direct merge.
 
 ### Verification
 
 - Rust formatting: passed.
 - Rust core tests: 187 passed, 0 failed, 1 ignored.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 10 passed across core and consensus suites.
+- Vitest: 15 passed across core, consensus, and sync suites.
 - Live Alice/Bob merge: both reviewer entries preserved.
 - Merged output: valid against review-document schema 1.0.
 - GitHub Actions Automerge job: passed on Node 24.
 - Live conflict resolution: `pass vs fail -> pass`; audit retained both values.
 - Consensus demo: 2 of 3 counted reviews voted `pass`.
+- Incremental sync demo: 12 messages and approximately 5.9 KB across four
+  sessions (compressed byte count varies slightly with generated actor IDs).
+- A second unchanged sync sends zero messages and zero bytes.
+- Serialized peer state resumed successfully after a simulated restart.
 
 ### Decisions and lessons
 
@@ -50,6 +60,7 @@ Repository: <https://github.com/tiempo0206/automerge>
 
 ### Next tasks
 
-- Explore Automerge sync messages instead of exchanging complete documents.
 - Add policy tests for larger reviewer panels and configurable quorum.
+- Benchmark incremental sync against full-document transfer on larger logs.
+- Add authenticated transport around the binary sync messages.
 - Select a non-duplicated upstream issue after the existing ESLint migration lands.

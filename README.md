@@ -72,10 +72,11 @@ same-key conflict, and compute sample consensus:
 npm run demo -- ../logs/YOUR_LOG.review.json
 ```
 
-The command writes `YOUR_LOG.merged.json`. It preserves a resolution audit and
-prints the decision, vote count, and number of pending samples. Consensus rules
-are documented in [`docs/consensus.md`](docs/consensus.md). The core also saves
-and loads Automerge's binary format so complete CRDT history can be persisted.
+The command writes `YOUR_LOG.merged.json`. It uses Automerge's incremental sync
+protocol across simulated offline sessions, preserves a resolution audit, and
+prints sync traffic, the consensus decision, and pending sample count. Consensus
+rules are documented in [`docs/consensus.md`](docs/consensus.md), and the sync
+protocol is documented in [`docs/sync-protocol.md`](docs/sync-protocol.md).
 
 ## Project journals
 
@@ -96,5 +97,5 @@ separately for [Inspect AI](docs/project-logs/inspect-ai.md),
 - [x] Detect concurrent same-key review conflicts
 - [x] Resolve conflicts with an audit record
 - [x] Compute reviewer consensus and arbitration queues
-- [ ] Exchange incremental Automerge sync messages
+- [x] Exchange and resume incremental Automerge sync messages
 - [ ] Build a local review interface

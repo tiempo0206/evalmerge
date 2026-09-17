@@ -13,6 +13,8 @@ Automerge CRDT. It demonstrates offline-first review without requiring a server.
 - `resolveReviewConflict` selects a value and records the complete audit trail.
 - `computeSampleConsensus` counts conflict-free votes for one sample.
 - `buildConsensusReport` identifies pending and arbitration samples.
+- `syncReviewDocuments` exchanges incremental peer-to-peer sync messages.
+- Sync state encoding and decoding supports process restarts and reconnection.
 - `saveReviewDocument` and `loadReviewDocument` persist complete CRDT history.
 
 Independent reviewers use different map keys and merge without losing edits.
@@ -36,9 +38,13 @@ First export an Inspect log from the repository root. Then run:
 npm run demo -- ../logs/YOUR_LOG.review.json
 ```
 
-The demo merges Alice and Bob's independent reviews, creates a concurrent edit
-for one reviewer, resolves that conflict, computes consensus, and writes
-`YOUR_LOG.merged.json`.
+The demo establishes a peer session, takes both peers offline, exchanges their
+incremental changes after reconnection, creates and synchronizes a concurrent
+edit, resolves that conflict, synchronizes the resolution, computes consensus,
+and writes `YOUR_LOG.merged.json`.
+
+It also reports the number and total bytes of sync messages so protocol behavior
+is observable rather than hidden behind the final state.
 
 ## Consensus policy
 

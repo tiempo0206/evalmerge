@@ -23,6 +23,11 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 11. Added conflict resolution, majority voting, agreement ratios, pending review
     tracking, and arbitration reports.
 12. Re-ran the complete Inspect export and Automerge demo against a real log.
+13. Added bounded incremental peer synchronization, traffic metrics, and
+    serializable sync state for reconnection after process restarts.
+14. Replaced direct demo merges with four sync sessions covering handshake,
+    offline review exchange, conflict exchange, and resolution propagation.
+15. Upgraded EvalMerge to version 0.5.0 and the Automerge core to 0.3.0.
 
 ### Verification
 
@@ -30,11 +35,12 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 - Python lint and formatting: passed.
 - Real Inspect export: 2 samples, schema version 1.0.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 10 passed across two test files.
+- Vitest: 15 passed across three test files.
 - Live Alice/Bob merge: passed; both reviews survived.
 - Merged JSON validation against schema 1.0: passed.
 - GitHub Actions: Python and Automerge jobs both passed.
 - Real schema 1.1 output: conflict audit valid and consensus was 2/3 `pass`.
+- Real sync traffic: 12 messages and approximately 5.9 KB; final peers converged.
 
 ### Decisions and lessons
 
@@ -46,6 +52,7 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 
 ### Next tasks
 
-- Add Automerge sync-message exchange between two simulated peers.
 - Add configurable quorum and consensus-policy presets.
+- Benchmark sync performance with larger Inspect logs.
+- Define the authenticated transport boundary for remote peers.
 - Build a small local review interface once the core merge semantics are stable.
