@@ -1,0 +1,19 @@
+/upstream/
+
+# Python
+/.venv/
+__pycache__/
+*.py[cod]
+/.pytest_cache/
+/.ruff_cache/
+/*.egg-info/
+/src/*.egg-info/
+
+# Inspect AI output
+/logs/
+*.eval
+
+# Editors and macOS
+.DS_Store
+.idea/
+.vscode/
