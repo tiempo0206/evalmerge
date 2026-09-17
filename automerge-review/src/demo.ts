@@ -5,9 +5,12 @@ import {
   addReview,
   createReviewDocument,
   forkReviewDocument,
+  getReviewConflicts,
   mergeReviewDocuments,
+  resolveReviewConflict,
   toPlainReviewDocument,
 } from "./core.ts";
+import { buildConsensusReport } from "./consensus.ts";
 import type { ReviewDocument } from "./types.ts";
 
 async function main(): Promise<void> {
@@ -41,14 +44,65 @@ async function main(): Promise<void> {
     comment: "The mock answer is correct but not semantically informative.",
     updated_at: new Date().toISOString(),
   });
-  const merged = mergeReviewDocuments(alice, bob);
-  const result = toPlainReviewDocument(merged);
+  const independentlyMerged = mergeReviewDocuments(alice, bob);
+
+  const firstDevice = addReview(
+    forkReviewDocument(independentlyMerged),
+    sampleKey,
+    "shared-reviewer",
+    {
+      label: "pass",
+      comment: "Reviewed against the published rubric.",
+      updated_at: new Date().toISOString(),
+    },
+  );
+  const secondDevice = addReview(
+    forkReviewDocument(independentlyMerged),
+    sampleKey,
+    "shared-reviewer",
+    {
+      label: "fail",
+      comment: "A concurrent edit from a second device.",
+      updated_at: new Date().toISOString(),
+    },
+  );
+  const conflicted = mergeReviewDocuments(firstDevice, secondDevice);
+  const conflicts = getReviewConflicts(
+    conflicted,
+    sampleKey,
+    "shared-reviewer",
+  );
+  const selectedReview = conflicts.find((review) => review.label === "pass");
+  if (!selectedReview) {
+    throw new Error("Expected a pass review in the conflict set");
+  }
+  const resolved = resolveReviewConflict(
+    conflicted,
+    sampleKey,
+    "shared-reviewer",
+    {
+      selectedReview,
+      resolvedBy: "lead-reviewer",
+      resolvedAt: new Date().toISOString(),
+      reason: "The selected review follows the published rubric.",
+    },
+  );
+  const result = toPlainReviewDocument(resolved);
+  const report = buildConsensusReport(resolved);
+  const sampleConsensus = report.samples[sampleKey]!;
 
   await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
   console.log(`Merged sample: ${sampleKey}`);
   console.log(
     `Reviewers: ${Object.keys(result.samples[sampleKey]!.reviews).join(", ")}`,
   );
+  console.log(
+    `Resolved conflict: ${conflicts.map((review) => review.label).join(" vs ")} -> ${selectedReview.label}`,
+  );
+  console.log(
+    `Consensus: ${sampleConsensus.decision} (${sampleConsensus.votes.pass}/${sampleConsensus.counted_reviews} pass)`,
+  );
+  console.log(`Pending samples: ${report.pending_review.length}`);
   console.log(`Output: ${outputPath}`);
 }
 

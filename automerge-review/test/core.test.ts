@@ -7,6 +7,7 @@ import {
   getReviewConflicts,
   loadReviewDocument,
   mergeReviewDocuments,
+  resolveReviewConflict,
   saveReviewDocument,
   toPlainReviewDocument,
 } from "../src/core.ts";
@@ -16,7 +17,7 @@ const SAMPLE_KEY = "sample-uuid";
 
 function fixtureDocument(sha256 = "a".repeat(64)): ReviewDocument {
   return {
-    schema_version: "1.0",
+    schema_version: "1.1",
     document_type: "evalmerge.review",
     evaluation: {
       eval_id: "eval-1",
@@ -44,6 +45,7 @@ function fixtureDocument(sha256 = "a".repeat(64)): ReviewDocument {
           exact: { value: "C" },
         },
         reviews: {},
+        resolutions: {},
       },
     },
   };
@@ -105,6 +107,66 @@ describe("collaborative review documents", () => {
     expect(new Set(conflicts.map((item) => item.label))).toEqual(
       new Set(["pass", "fail"]),
     );
+  });
+
+  it("resolves a conflict while preserving an audit record", () => {
+    const base = createReviewDocument(fixtureDocument());
+    const first = addReview(
+      forkReviewDocument(base),
+      SAMPLE_KEY,
+      "shared-reviewer",
+      review("pass", "Uses the rubric"),
+    );
+    const second = addReview(
+      forkReviewDocument(base),
+      SAMPLE_KEY,
+      "shared-reviewer",
+      review("fail", "Concurrent second edit"),
+    );
+    const conflicted = mergeReviewDocuments(first, second);
+    const conflicts = getReviewConflicts(
+      conflicted,
+      SAMPLE_KEY,
+      "shared-reviewer",
+    );
+    const selectedReview = conflicts.find((item) => item.label === "pass")!;
+
+    const resolved = resolveReviewConflict(
+      conflicted,
+      SAMPLE_KEY,
+      "shared-reviewer",
+      {
+        selectedReview,
+        resolvedBy: "lead-reviewer",
+        resolvedAt: "2026-09-17T11:30:00Z",
+        reason: "The pass review follows the published rubric.",
+      },
+    );
+    const plain = toPlainReviewDocument(resolved);
+    const resolution =
+      plain.samples[SAMPLE_KEY]!.resolutions!["shared-reviewer"]!;
+
+    expect(getReviewConflicts(resolved, SAMPLE_KEY, "shared-reviewer")).toEqual(
+      [],
+    );
+    expect(plain.samples[SAMPLE_KEY]!.reviews["shared-reviewer"]).toEqual(
+      selectedReview,
+    );
+    expect(resolution.resolved_by).toBe("lead-reviewer");
+    expect(
+      new Set(resolution.conflicting_reviews.map((item) => item.label)),
+    ).toEqual(new Set(["pass", "fail"]));
+  });
+
+  it("upgrades a version 1.0 document in memory", () => {
+    const legacy = fixtureDocument();
+    legacy.schema_version = "1.0";
+    delete legacy.samples[SAMPLE_KEY]!.resolutions;
+
+    const migrated = toPlainReviewDocument(createReviewDocument(legacy));
+
+    expect(migrated.schema_version).toBe("1.1");
+    expect(migrated.samples[SAMPLE_KEY]!.resolutions).toEqual({});
   });
 
   it("persists and reloads the complete Automerge history", () => {

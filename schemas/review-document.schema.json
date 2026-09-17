@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "document_type", "evaluation", "samples"],
   "properties": {
-    "schema_version": { "const": "1.0" },
+    "schema_version": { "enum": ["1.0", "1.1"] },
     "document_type": { "const": "evalmerge.review" },
     "evaluation": {
       "type": "object",
@@ -74,6 +74,10 @@
         "reviews": {
           "type": "object",
           "additionalProperties": { "$ref": "#/$defs/review" }
+        },
+        "resolutions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/resolution" }
         }
       }
     },
@@ -85,6 +89,28 @@
         "label": { "enum": ["pass", "fail", "unsure"] },
         "comment": { "type": "string" },
         "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolved_by",
+        "resolved_at",
+        "reason",
+        "selected_review",
+        "conflicting_reviews"
+      ],
+      "properties": {
+        "resolved_by": { "type": "string", "minLength": 1 },
+        "resolved_at": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string", "minLength": 1 },
+        "selected_review": { "$ref": "#/$defs/review" },
+        "conflicting_reviews": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/review" }
+        }
       }
     }
   }

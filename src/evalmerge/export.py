@@ -11,7 +11,7 @@ from typing import Any
 
 from inspect_ai.log import EvalLog, EvalSample, read_eval_log
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 DOCUMENT_TYPE = "evalmerge.review"
 
 
@@ -70,6 +70,7 @@ def _review_sample(sample: EvalSample, index: int) -> tuple[str, dict[str, Any]]
         "output": output,
         "scores": scores,
         "reviews": {},
+        "resolutions": {},
     }
 
 

@@ -5,11 +5,14 @@ Automerge CRDT. It demonstrates offline-first review without requiring a server.
 
 ## Core operations
 
-- `createReviewDocument` imports version 1.0 review JSON into Automerge.
+- `createReviewDocument` imports review JSON and upgrades version 1.0 to 1.1.
 - `forkReviewDocument` creates an offline peer with its own actor ID.
 - `addReview` records one review as an immutable Automerge change.
 - `mergeReviewDocuments` checks the evaluation identity before merging peers.
 - `getReviewConflicts` exposes concurrent writes to the same reviewer key.
+- `resolveReviewConflict` selects a value and records the complete audit trail.
+- `computeSampleConsensus` counts conflict-free votes for one sample.
+- `buildConsensusReport` identifies pending and arbitration samples.
 - `saveReviewDocument` and `loadReviewDocument` persist complete CRDT history.
 
 Independent reviewers use different map keys and merge without losing edits.
@@ -33,5 +36,13 @@ First export an Inspect log from the repository root. Then run:
 npm run demo -- ../logs/YOUR_LOG.review.json
 ```
 
-The demo forks one base document, lets Alice and Bob review the first sample
-offline, merges both branches, and writes `YOUR_LOG.merged.json`.
+The demo merges Alice and Bob's independent reviews, creates a concurrent edit
+for one reviewer, resolves that conflict, computes consensus, and writes
+`YOUR_LOG.merged.json`.
+
+## Consensus policy
+
+Unresolved same-key conflicts are excluded from the vote. A sample needs
+arbitration when it has an unresolved conflict, a tie, an `unsure` majority, or
+agreement below the configured threshold. Unreviewed samples are tracked
+separately as pending work.

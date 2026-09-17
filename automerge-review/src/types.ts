@@ -11,6 +11,14 @@ export interface Review extends Record<string, JsonValue> {
   updated_at: string;
 }
 
+export interface ConflictResolution extends Record<string, JsonValue> {
+  resolved_by: string;
+  resolved_at: string;
+  reason: string;
+  selected_review: Review;
+  conflicting_reviews: Review[];
+}
+
 export interface ReviewSample {
   sample_uuid: string | null;
   id: string | number | null;
@@ -28,10 +36,13 @@ export interface ReviewSample {
   reviews: {
     [reviewerId: string]: Review;
   };
+  resolutions?: {
+    [reviewerId: string]: ConflictResolution;
+  };
 }
 
 export interface ReviewDocument extends Record<string, unknown> {
-  schema_version: "1.0";
+  schema_version: "1.0" | "1.1";
   document_type: "evalmerge.review";
   evaluation: {
     eval_id: string;

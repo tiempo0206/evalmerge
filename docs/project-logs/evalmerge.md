@@ -18,17 +18,23 @@ Repository: <https://github.com/tiempo0206/evalmerge>
    reviews, conflict inspection for same-key edits, and binary save/load support.
 9. Added separate Python and Node CI jobs and created daily journals for all
    three repositories.
+10. Released review-document schema 1.1 with backwards-compatible resolution
+    audit maps and upgraded EvalMerge to version 0.4.0.
+11. Added conflict resolution, majority voting, agreement ratios, pending review
+    tracking, and arbitration reports.
+12. Re-ran the complete Inspect export and Automerge demo against a real log.
 
 ### Verification
 
-- Python tests: 5 passed.
+- Python tests: 6 passed.
 - Python lint and formatting: passed.
 - Real Inspect export: 2 samples, schema version 1.0.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 4 passed.
+- Vitest: 10 passed across two test files.
 - Live Alice/Bob merge: passed; both reviews survived.
 - Merged JSON validation against schema 1.0: passed.
 - GitHub Actions: Python and Automerge jobs both passed.
+- Real schema 1.1 output: conflict audit valid and consensus was 2/3 `pass`.
 
 ### Decisions and lessons
 
@@ -40,6 +46,6 @@ Repository: <https://github.com/tiempo0206/evalmerge>
 
 ### Next tasks
 
-- Add explicit conflict resolution and reviewer consensus computation.
 - Add Automerge sync-message exchange between two simulated peers.
+- Add configurable quorum and consensus-policy presets.
 - Build a small local review interface once the core merge semantics are stable.

@@ -19,11 +19,13 @@ Repository: <https://github.com/tiempo0206/inspect_ai>
 8. Implemented an exporter that reads a real `.eval` file and selects the
    prompts, targets, completions, automated scores, and sample identifiers.
 9. Added a versioned JSON Schema and a SHA-256 link to the immutable source log.
+10. Upgraded the exporter to schema 1.1 with an empty per-sample conflict
+    resolution map while retaining schema compatibility with version 1.0.
 
 ### Verification
 
 - Focused upstream test: passed.
-- EvalMerge Python tests: 5 passed.
+- EvalMerge Python tests: 6 passed.
 - Ruff lint and formatting: passed.
 - GitHub Actions Python job: passed.
 
@@ -34,6 +36,8 @@ Repository: <https://github.com/tiempo0206/inspect_ai>
 - Keep raw `.eval` logs out of Git because they are generated runtime artifacts.
 - Export only review-relevant fields; event traces remain available in the
   original log when deeper debugging is needed.
+- Keep conflict and consensus logic outside Inspect; the `.eval` file remains
+  the immutable source of model-run evidence.
 
 ### Next tasks
 

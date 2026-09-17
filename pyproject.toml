@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "evalmerge"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local-first collaborative review tools for Inspect AI evaluations"
 readme = "README.md"
 requires-python = ">=3.11"

@@ -20,16 +20,24 @@ Repository: <https://github.com/tiempo0206/automerge>
    target different CRDT keys.
 9. Added a TypeScript integration that forks two offline documents, records
    independent reviews, merges them, and exposes true same-key conflicts.
+10. Added conflict resolution that selects an observed value and preserves the
+    resolver, reason, timestamp, selected value, and all original alternatives.
+11. Added conflict-aware consensus, configurable agreement thresholds, pending
+    review tracking, and an arbitration queue.
+12. Extended the live demo to create a real conflict, resolve it, and compute a
+    two-of-three `pass` decision.
 
 ### Verification
 
 - Rust formatting: passed.
 - Rust core tests: 187 passed, 0 failed, 1 ignored.
 - TypeScript formatting and strict typecheck: passed.
-- Vitest: 4 passed.
+- Vitest: 10 passed across core and consensus suites.
 - Live Alice/Bob merge: both reviewer entries preserved.
 - Merged output: valid against review-document schema 1.0.
 - GitHub Actions Automerge job: passed on Node 24.
+- Live conflict resolution: `pass vs fail -> pass`; audit retained both values.
+- Consensus demo: 2 of 3 counted reviews voted `pass`.
 
 ### Decisions and lessons
 
@@ -42,6 +50,6 @@ Repository: <https://github.com/tiempo0206/automerge>
 
 ### Next tasks
 
-- Add a conflict-resolution operation that records who resolved a conflict.
 - Explore Automerge sync messages instead of exchanging complete documents.
+- Add policy tests for larger reviewer panels and configurable quorum.
 - Select a non-duplicated upstream issue after the existing ESLint migration lands.

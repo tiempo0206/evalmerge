@@ -38,7 +38,7 @@ def test_exported_document_matches_schema(eval_log_path: Path, tmp_path: Path) -
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     Draft202012Validator(schema).validate(document)
 
-    assert document["schema_version"] == "1.0"
+    assert document["schema_version"] == "1.1"
     assert document["evaluation"]["task"] == "hello_eval"
     assert (
         document["evaluation"]["source"]["sha256"]
@@ -56,6 +56,23 @@ def test_exported_document_matches_schema(eval_log_path: Path, tmp_path: Path) -
         sample["scores"]["exact"]["value"] == "C" for sample in samples_by_id.values()
     )
     assert all(sample["reviews"] == {} for sample in samples_by_id.values())
+    assert all(sample["resolutions"] == {} for sample in samples_by_id.values())
+
+
+def test_schema_remains_compatible_with_version_1_0(
+    eval_log_path: Path, tmp_path: Path
+) -> None:
+    """Version 1.0 documents without resolution maps should remain valid."""
+    output_path = tmp_path / "review.json"
+    export_eval_log(eval_log_path, output_path)
+    document = json.loads(output_path.read_text(encoding="utf-8"))
+    document["schema_version"] = "1.0"
+    for sample in document["samples"].values():
+        sample.pop("resolutions")
+
+    schema_path = Path("schemas/review-document.schema.json")
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    Draft202012Validator(schema).validate(document)
 
 
 def test_export_refuses_to_overwrite_without_force(

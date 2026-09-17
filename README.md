@@ -1,9 +1,9 @@
 # EvalMerge
 
 EvalMerge is an experimental local-first collaborative review workflow for
-[Inspect AI](https://inspect.aisi.org.uk/) evaluation logs. The planned review
-state will use [Automerge](https://automerge.org/) so multiple reviewers can
-work offline and merge their annotations without losing changes.
+[Inspect AI](https://inspect.aisi.org.uk/) evaluation logs. Its review state
+uses [Automerge](https://automerge.org/) so multiple reviewers can work offline,
+merge annotations, inspect conflicts, and preserve resolution history.
 
 The repository currently contains a reproducible two-sample Inspect evaluation
 and a command-line exporter that turns its `.eval` log into review-focused JSON.
@@ -52,7 +52,7 @@ evalmerge export logs/YOUR_LOG.eval \
 ```
 
 The exported document contains the prompts, targets, model completions, scores,
-and an empty review map for each sample. Its format is explained in
+and empty review and resolution maps for each sample. Its format is explained in
 [`docs/review-document.md`](docs/review-document.md) and validated by
 [`schemas/review-document.schema.json`](schemas/review-document.schema.json).
 
@@ -65,14 +65,16 @@ cd automerge-review
 npm install
 ```
 
-From that directory, give Alice and Bob separate offline copies of an exported
-review document and merge their independent reviews:
+From that directory, run independent offline reviews, create and resolve a
+same-key conflict, and compute sample consensus:
 
 ```bash
 npm run demo -- ../logs/YOUR_LOG.review.json
 ```
 
-The command writes `YOUR_LOG.merged.json`. The core implementation also saves
+The command writes `YOUR_LOG.merged.json`. It preserves a resolution audit and
+prints the decision, vote count, and number of pending samples. Consensus rules
+are documented in [`docs/consensus.md`](docs/consensus.md). The core also saves
 and loads Automerge's binary format so complete CRDT history can be persisted.
 
 ## Project journals
@@ -92,4 +94,7 @@ separately for [Inspect AI](docs/project-logs/inspect-ai.md),
 - [x] Represent reviewer annotations in an Automerge document
 - [x] Merge independent offline annotations
 - [x] Detect concurrent same-key review conflicts
-- [ ] Resolve conflicts and compute reviewer consensus
+- [x] Resolve conflicts with an audit record
+- [x] Compute reviewer consensus and arbitration queues
+- [ ] Exchange incremental Automerge sync messages
+- [ ] Build a local review interface

@@ -8,7 +8,7 @@ compatible with Automerge's JSON-like data model.
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "document_type": "evalmerge.review",
   "evaluation": {},
   "samples": {}
@@ -20,8 +20,8 @@ SHA-256 digest. The digest lets a reviewer verify that two review documents came
 from the same immutable evaluation log.
 
 `samples` is a map keyed by Inspect's sample UUID. Each value contains the
-original input, target, model completion, automated scores, and an initially
-empty `reviews` map.
+original input, target, model completion, automated scores, an initially empty
+`reviews` map, and an initially empty `resolutions` audit map.
 
 ## Why maps instead of arrays?
 
@@ -44,8 +44,46 @@ The intended review shape is:
 }
 ```
 
-The initial exporter leaves `reviews` empty. The next milestone will use
-Automerge to add and merge those review entries.
+The exporter leaves `reviews` empty. Automerge adds and merges review entries.
+
+## Conflict resolution audit
+
+Concurrent writes to the same reviewer key remain visible through Automerge's
+conflict API. Resolving such a conflict writes the selected review back after
+observing every conflicting value. This removes the active conflict while
+preserving the original alternatives in `resolutions`:
+
+```json
+{
+  "resolutions": {
+    "alice": {
+      "resolved_by": "lead-reviewer",
+      "resolved_at": "2026-09-17T11:30:00Z",
+      "reason": "The first review used the published rubric.",
+      "selected_review": {
+        "label": "pass",
+        "comment": "Meets the rubric.",
+        "updated_at": "2026-09-17T11:00:00Z"
+      },
+      "conflicting_reviews": [
+        {
+          "label": "pass",
+          "comment": "Meets the rubric.",
+          "updated_at": "2026-09-17T11:00:00Z"
+        },
+        {
+          "label": "fail",
+          "comment": "Second device edit.",
+          "updated_at": "2026-09-17T11:01:00Z"
+        }
+      ]
+    }
+  }
+}
+```
+
+Version 1.1 introduces this optional map. The schema remains compatible with
+version 1.0 documents, and the Automerge importer upgrades them in memory.
 
 ## Contract
 
